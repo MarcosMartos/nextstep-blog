@@ -1,6 +1,7 @@
 import { AppBar, Toolbar, Typography, InputBase, Box } from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
+import { Link } from "react-router-dom";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -35,7 +36,12 @@ export default function Navbar() {
     <AppBar position="static" color="primary">
       <Toolbar sx={{ justifyContent: "space-between" }}>
         {/* Imagen o Logo a la izquierda */}
-        <Box display="flex" alignItems="center">
+        <Box
+          component={Link}
+          to="/pageposts"
+          display="flex"
+          alignItems="center"
+        >
           <img
             src="https://res.cloudinary.com/df4ghpsiz/image/upload/v1742661142/Group_2_ixliul.png"
             alt="logo"
