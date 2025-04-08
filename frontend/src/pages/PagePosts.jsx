@@ -7,38 +7,26 @@ import {
   Grid,
   CardMedia,
 } from "@mui/material";
-
-const posts = [
-  {
-    id: 1,
-    title: "How to Deploy a Node.js Application on AWS",
-    category: "AWS",
-    image:
-      "https://res.cloudinary.com/df4ghpsiz/image/upload/v1742663056/R_dzfmkc.png",
-    author: { name: "Oluwatobi", avatar: "https://i.pravatar.cc/150?img=10" },
-    time: "6 hours ago",
-  },
-  {
-    id: 2,
-    title: "Code a full stack Instagram Clone with...",
-    category: "LARAVEL",
-    image:
-      "https://res.cloudinary.com/df4ghpsiz/image/upload/v1742663056/R_dzfmkc.png",
-    author: { name: "Beau Carnes", avatar: "https://i.pravatar.cc/150?img=32" },
-    time: "8 hours ago",
-  },
-  {
-    id: 3,
-    title: "Fetch API vs. Axios vs. Alova: Which HTTP...",
-    category: "ALOVA",
-    image:
-      "https://res.cloudinary.com/df4ghpsiz/image/upload/v1742663056/R_dzfmkc.png",
-    author: { name: "Abdullah", avatar: "https://i.pravatar.cc/150?img=12" },
-    time: "8 hours ago",
-  },
-];
+import { useEffect, useState } from "react";
+import { getAllPosts } from "../api/api.jsx"; // ajustá el path si cambia
+import { Link } from "react-router-dom";
 
 export default function PagePosts() {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await getAllPosts();
+        setPosts(res.data);
+      } catch (error) {
+        console.error("Error al obtener los posts:", error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       {posts.map((post) => (
@@ -53,8 +41,8 @@ export default function PagePosts() {
           <Grid item xs={12} sm={4}>
             <CardMedia
               component="img"
-              image={post.image}
-              alt={post.title}
+              image={post.imagenPost}
+              alt={post.titulo}
               sx={{
                 width: "100%",
                 borderRadius: 1,
@@ -67,24 +55,34 @@ export default function PagePosts() {
           {/* Info del post */}
           <Grid item xs={12} sm={8}>
             <Typography variant="caption" color="text.secondary">
-              #{post.category.toUpperCase()}
+              #{post.categoria.toUpperCase()}
             </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              {post.title}
-            </Typography>
+            <Link
+              to={`/post/${post.id}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                {post.titulo}
+              </Typography>
+            </Link>
             <Box display="flex" alignItems="center" gap={1} mt={1}>
               <Avatar
-                src={post.author.avatar}
-                alt={post.author.name}
+                src={post.imagenAutor}
+                alt={post.autor}
                 sx={{ width: 24, height: 24 }}
               />
-              <Typography variant="body2">{post.author.name}</Typography>
+              <Typography variant="body2">{post.autor}</Typography>
               <Typography
                 variant="body2"
                 color="text.secondary"
                 sx={{ ml: "auto" }}
               >
-                {post.time}
+                {/* Formateo de la fecha */}
+                {new Date(post.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
               </Typography>
             </Box>
           </Grid>

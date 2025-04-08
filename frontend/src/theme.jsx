@@ -13,6 +13,7 @@ const theme = createTheme({
     background: {
       default: "#0F172A", // un fondo oscuro profundo
       paper: "#1E293B", // para tarjetas, appbars, etc.
+      azul: "#3B82F6", // azul más claro para detalles
     },
     text: {
       primary: "#FFFFFF", // texto principal
