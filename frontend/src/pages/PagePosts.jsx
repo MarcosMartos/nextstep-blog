@@ -6,6 +6,7 @@ import {
   Container,
   Grid,
   CardMedia,
+  Button,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getAllPosts } from "../api/api.jsx"; // ajustá el path si cambia
@@ -13,6 +14,8 @@ import { Link } from "react-router-dom";
 
 export default function PagePosts() {
   const [posts, setPosts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -27,9 +30,14 @@ export default function PagePosts() {
     fetchPosts();
   }, []);
 
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+  const totalPages = Math.ceil(posts.length / postsPerPage);
+
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-      {posts.map((post) => (
+      {currentPosts.map((post) => (
         <Grid
           key={post.id}
           container
@@ -77,7 +85,6 @@ export default function PagePosts() {
                 color="text.secondary"
                 sx={{ ml: "auto" }}
               >
-                {/* Formateo de la fecha */}
                 {new Date(post.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
@@ -88,6 +95,35 @@ export default function PagePosts() {
           </Grid>
         </Grid>
       ))}
+
+      {/* Paginación */}
+      <Box display="flex" justifyContent="center" mt={4} gap={1}>
+        <Button
+          variant="outlined"
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => prev - 1)}
+        >
+          Anterior
+        </Button>
+
+        {Array.from({ length: totalPages }, (_, i) => (
+          <Button
+            key={i + 1}
+            variant={currentPage === i + 1 ? "contained" : "outlined"}
+            onClick={() => setCurrentPage(i + 1)}
+          >
+            {i + 1}
+          </Button>
+        ))}
+
+        <Button
+          variant="outlined"
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((prev) => prev + 1)}
+        >
+          Siguiente
+        </Button>
+      </Box>
     </Container>
   );
 }

@@ -3,6 +3,7 @@ import { Box, Typography, Avatar, Container } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getPostById } from "../../api/api.jsx";
+import ReactMarkdown from "react-markdown";
 
 export default function Post() {
   const { id } = useParams();
@@ -26,29 +27,45 @@ export default function Post() {
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
       {/* Fecha y categoría */}
-      <Typography variant="body2" color="text.secondary" gutterBottom>
+      <Typography
+        variant="caption"
+        sx={{
+          display: "block",
+          fontSize: "0.85rem",
+          letterSpacing: 0.5,
+          textTransform: "uppercase",
+          color: "text.secondary",
+          mb: 1,
+        }}
+      >
         {new Date(post.createdAt).toLocaleDateString("en-US", {
           year: "numeric",
           month: "long",
           day: "numeric",
         })}{" "}
-        / <strong>#{post.categoria}</strong>
+        / <strong style={{ color: "#3f51b5" }}>#{post.categoria}</strong>
       </Typography>
 
-      {/* Título */}
       <Typography
-        variant="h4"
+        variant="h3"
         component="h1"
-        gutterBottom
-        sx={{ fontWeight: 700 }}
+        sx={{
+          fontWeight: 800,
+          lineHeight: 1.2,
+          mb: 3,
+          color: "primary",
+        }}
       >
         {post.titulo}
       </Typography>
 
-      {/* Autor */}
-      <Box display="flex" alignItems="center" gap={1} mb={3}>
-        <Avatar alt={post.autor} src={post.imagenAutor} />
-        <Typography variant="subtitle1" fontWeight={500}>
+      <Box display="flex" alignItems="center" gap={2} mb={4}>
+        <Avatar
+          alt={post.autor}
+          src={post.imagenAutor}
+          sx={{ width: 64, height: 64 }}
+        />
+        <Typography variant="h6" fontWeight={600}>
           {post.autor}
         </Typography>
       </Box>
@@ -66,9 +83,76 @@ export default function Post() {
       />
 
       {/* Contenido */}
-      <Typography variant="body1" paragraph>
-        {post.contenido}
-      </Typography>
+      <ReactMarkdown
+        children={post.contenido}
+        components={{
+          p: ({ node, ...props }) => (
+            <Typography
+              variant="body1"
+              sx={{
+                fontSize: "1.4rem",
+                lineHeight: 2,
+                color: "text.primary",
+                my: 1.5, // margen superior e inferior controlado
+              }}
+              {...props}
+            />
+          ),
+
+          a: ({ node, ...props }) => (
+            <a
+              style={{
+                color: "#0070f3",
+                textDecoration: "underline",
+                fontWeight: 500,
+              }}
+              {...props}
+            />
+          ),
+          code: ({ inline, ...props }) => {
+            return inline ? (
+              <code
+                style={{
+                  backgroundColor: "#2d2d2d", // fondo oscuro
+                  color: "#f8f8f2", // texto claro
+                  padding: "2px 6px",
+                  borderRadius: "4px",
+                  fontFamily: "monospace",
+                  fontSize: "0.95rem",
+                }}
+                {...props}
+              />
+            ) : (
+              <pre
+                style={{
+                  backgroundColor: "#2d2d2d",
+                  color: "#f8f8f2",
+                  padding: "16px",
+                  borderRadius: "6px",
+                  overflowX: "auto",
+                  fontFamily: "monospace",
+                  fontSize: "0.95rem",
+                  marginTop: "1rem",
+                  marginBottom: "1rem",
+                }}
+              >
+                <code {...props} />
+              </pre>
+            );
+          },
+          li: ({ node, ...props }) => (
+            <li
+              style={{
+                fontSize: "1.2rem",
+                lineHeight: 1.8,
+                marginBottom: "0.5rem",
+                marginLeft: "1.5rem",
+              }}
+              {...props}
+            />
+          ),
+        }}
+      />
     </Container>
   );
 }
