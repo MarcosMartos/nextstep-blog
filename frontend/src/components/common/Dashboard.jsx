@@ -1,5 +1,5 @@
-// src/pages/PostDashboard.jsx
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom"; // 👈 NUEVO
 import {
   Container,
   Typography,
@@ -32,6 +32,18 @@ import {
 import { useSearch } from "../../context/SearchContext.jsx";
 
 export default function PostDashboard() {
+  const location = useLocation(); // 👈
+  const navigate = useNavigate(); // 👈
+
+  // 🔒 Protección de acceso
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    const key = query.get("key");
+    if (key !== import.meta.env.VITE_DASHBOARD_KEY) {
+      navigate("/pageposts"); // redirigir si no tiene acceso
+    }
+  }, [location, navigate]);
+
   const [posts, setPosts] = useState([]);
   const [form, setForm] = useState({
     titulo: "",
@@ -223,7 +235,6 @@ export default function PostDashboard() {
           >
             Anterior
           </Button>
-
           {Array.from({ length: totalPages }, (_, i) => (
             <Button
               key={i + 1}
@@ -233,7 +244,6 @@ export default function PostDashboard() {
               {i + 1}
             </Button>
           ))}
-
           <Button
             variant="outlined"
             disabled={currentPage === totalPages}
