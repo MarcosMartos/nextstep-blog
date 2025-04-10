@@ -22,10 +22,9 @@ import {
   Paper,
   Chip,
 } from "@mui/material";
-import { Delete, Edit, Add, Visibility } from "@mui/icons-material";
+import { Delete, Edit, Add } from "@mui/icons-material";
 import {
-  getAllPosts,
-  getPostById,
+  getPostsPaginated,
   createPost,
   updatePost,
   deletePost,
@@ -43,15 +42,22 @@ export default function PostDashboard() {
   });
   const [editingId, setEditingId] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchPosts = async () => {
-    const res = await getAllPosts();
-    setPosts(res.data);
+    try {
+      const res = await getPostsPaginated(currentPage, 5);
+      setPosts(res.data.data);
+      setTotalPages(res.data.totalPages);
+    } catch (error) {
+      console.error("Error al obtener los posts paginados:", error);
+    }
   };
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [currentPage]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -102,11 +108,7 @@ export default function PostDashboard() {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 6 }}>
-      <Typography variant="h4" fontWeight={700} gutterBottom>
-        Dashboard
-      </Typography>
-
+    <Container maxWidth="lg" sx={{ pt: 4, pb: 6 }}>
       {/* Botón flotante para abrir formulario de creación */}
       <Fab
         color="success"
@@ -160,31 +162,39 @@ export default function PostDashboard() {
         <Table>
           <TableHead sx={{ backgroundColor: "#2c3e50" }}>
             <TableRow>
-              <TableCell sx={{ color: "#fff" }}>ID</TableCell>
-              <TableCell sx={{ color: "#fff" }}>Título</TableCell>
-              <TableCell sx={{ color: "#fff" }}>Fecha</TableCell>
-              <TableCell sx={{ color: "#fff" }}>Autor</TableCell>
-              <TableCell sx={{ color: "#fff" }}>Categoría</TableCell>
-              <TableCell sx={{ color: "#fff" }}>Acciones</TableCell>
+              <TableCell align="center" sx={{ color: "#fff" }}>
+                Título
+              </TableCell>
+              <TableCell align="center" sx={{ color: "#fff" }}>
+                Fecha
+              </TableCell>
+              <TableCell align="center" sx={{ color: "#fff" }}>
+                Autor
+              </TableCell>
+              <TableCell align="center" sx={{ color: "#fff" }}>
+                Categoría
+              </TableCell>
+              <TableCell align="center" sx={{ color: "#fff" }}>
+                Acciones
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {posts.map((post, index) => (
+            {posts.map((post) => (
               <TableRow key={post.id}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{post.titulo}</TableCell>
-                <TableCell>
+                <TableCell align="center">{post.titulo}</TableCell>
+                <TableCell align="center">
                   {new Date(post.createdAt).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
-                  })}{" "}
+                  })}
                 </TableCell>
-                <TableCell>{post.autor}</TableCell>
-                <TableCell>
+                <TableCell align="center">{post.autor}</TableCell>
+                <TableCell align="center">
                   <Chip label={post.categoria} color="secondary" size="small" />
                 </TableCell>
-                <TableCell>
+                <TableCell align="center">
                   <IconButton onClick={() => handleEdit(post)} color="warning">
                     <Edit />
                   </IconButton>
@@ -200,6 +210,35 @@ export default function PostDashboard() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Paginación */}
+      <Box display="flex" justifyContent="center" mt={4} gap={1}>
+        <Button
+          variant="outlined"
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => prev - 1)}
+        >
+          Anterior
+        </Button>
+
+        {Array.from({ length: totalPages }, (_, i) => (
+          <Button
+            key={i + 1}
+            variant={currentPage === i + 1 ? "contained" : "outlined"}
+            onClick={() => setCurrentPage(i + 1)}
+          >
+            {i + 1}
+          </Button>
+        ))}
+
+        <Button
+          variant="outlined"
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((prev) => prev + 1)}
+        >
+          Siguiente
+        </Button>
+      </Box>
     </Container>
   );
 }
