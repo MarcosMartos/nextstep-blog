@@ -1,19 +1,57 @@
 import { prisma } from "../prismaClient.js";
 
 // Obtener todos los posts
+// export const getAllPosts = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = parseInt(req.query.limit) || 10;
+//     const skip = (page - 1) * limit;
+
+//     const posts = await prisma.post.findMany({
+//       skip,
+//       take: limit,
+//       orderBy: { createdAt: "desc" },
+//     });
+
+//     const total = await prisma.post.count();
+
+//     res.json({
+//       data: posts,
+//       currentPage: page,
+//       totalPages: Math.ceil(total / limit),
+//       totalPosts: total,
+//     });
+//   } catch (error) {
+//     console.error("Error al obtener los posts paginados:", error);
+//     res.status(500).json({ error: "Error al obtener los posts paginados" });
+//   }
+// };
+// Obtener todos los posts con paginación y búsqueda
 export const getAllPosts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+    const search = req.query.search || "";
+
+    const where = search
+      ? {
+          OR: [
+            { titulo: { contains: search, mode: "insensitive" } },
+            { autor: { contains: search, mode: "insensitive" } },
+            { categoria: { contains: search, mode: "insensitive" } },
+          ],
+        }
+      : {};
 
     const posts = await prisma.post.findMany({
+      where,
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
     });
 
-    const total = await prisma.post.count();
+    const total = await prisma.post.count({ where });
 
     res.json({
       data: posts,

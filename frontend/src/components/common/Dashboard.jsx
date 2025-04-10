@@ -29,6 +29,7 @@ import {
   updatePost,
   deletePost,
 } from "../../api/api.jsx";
+import { useSearch } from "../../context/SearchContext.jsx";
 
 export default function PostDashboard() {
   const [posts, setPosts] = useState([]);
@@ -44,10 +45,11 @@ export default function PostDashboard() {
   const [openDialog, setOpenDialog] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const { searchTerm } = useSearch();
 
   const fetchPosts = async () => {
     try {
-      const res = await getPostsPaginated(currentPage, 5);
+      const res = await getPostsPaginated(currentPage, 5, searchTerm);
       setPosts(res.data.data);
       setTotalPages(res.data.totalPages);
     } catch (error) {
@@ -57,7 +59,7 @@ export default function PostDashboard() {
 
   useEffect(() => {
     fetchPosts();
-  }, [currentPage]);
+  }, [currentPage, searchTerm]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -212,33 +214,35 @@ export default function PostDashboard() {
       </TableContainer>
 
       {/* Paginación */}
-      <Box display="flex" justifyContent="center" mt={4} gap={1}>
-        <Button
-          variant="outlined"
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((prev) => prev - 1)}
-        >
-          Anterior
-        </Button>
-
-        {Array.from({ length: totalPages }, (_, i) => (
+      {totalPages > 1 && (
+        <Box display="flex" justifyContent="center" mt={4} gap={1}>
           <Button
-            key={i + 1}
-            variant={currentPage === i + 1 ? "contained" : "outlined"}
-            onClick={() => setCurrentPage(i + 1)}
+            variant="outlined"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
           >
-            {i + 1}
+            Anterior
           </Button>
-        ))}
 
-        <Button
-          variant="outlined"
-          disabled={currentPage === totalPages}
-          onClick={() => setCurrentPage((prev) => prev + 1)}
-        >
-          Siguiente
-        </Button>
-      </Box>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <Button
+              key={i + 1}
+              variant={currentPage === i + 1 ? "contained" : "outlined"}
+              onClick={() => setCurrentPage(i + 1)}
+            >
+              {i + 1}
+            </Button>
+          ))}
+
+          <Button
+            variant="outlined"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+          >
+            Siguiente
+          </Button>
+        </Box>
+      )}
     </Container>
   );
 }
