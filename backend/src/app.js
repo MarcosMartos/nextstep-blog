@@ -10,6 +10,12 @@ app.use(cors());
 const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
+
+// Ruta de prueba para que Railway detecte que está corriendo
+app.get("/", (req, res) => {
+  res.send("¡La API está funcionando correctamente! 🚀");
+});
+
 app.use("/posts", postRoutes);
 
 app.listen(PORT, () => {
